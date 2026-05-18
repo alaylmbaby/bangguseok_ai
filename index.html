@@ -1551,17 +1551,17 @@ html,body{
         <span class="upload-count"><span id="upload-num">0</span> / 최소 3장</span>
       </div>
       <div class="upload-required">
-        <div class="upload-slot" id="slot-0" onclick="triggerUpload(0)">
+        <div class="upload-slot" id="slot-0" onclick="triggerUploadMulti(0)">
           <div class="slot-req-badge">필수</div>
           <div class="slot-icon">📷</div>
           <div class="slot-label">사진 1</div>
         </div>
-        <div class="upload-slot" id="slot-1" onclick="triggerUpload(1)">
+        <div class="upload-slot" id="slot-1" onclick="triggerUploadMulti(1)">
           <div class="slot-req-badge">필수</div>
           <div class="slot-icon">📷</div>
           <div class="slot-label">사진 2</div>
         </div>
-        <div class="upload-slot" id="slot-2" onclick="triggerUpload(2)">
+        <div class="upload-slot" id="slot-2" onclick="triggerUploadMulti(2)">
           <div class="slot-req-badge">필수</div>
           <div class="slot-icon">📷</div>
           <div class="slot-label">사진 3</div>
@@ -2294,6 +2294,45 @@ function closeDiag() {
 // ═══════════════════════════════════════════
 const LABELS = ['침실·방','책상','욕실','바탕화면','차 안','냉장고','옷장','쇼핑목록','가방 안','메신저'];
 
+// 파일 고유 키 (이름 + 크기 + 마지막수정일)
+function fileKey(file) {
+  return `${file.name}_${file.size}_${file.lastModified}`;
+}
+
+// 현재 등록된 모든 파일의 키 집합
+function getAllFileKeys() {
+  const keys = new Set();
+  Object.values(uploads).forEach(f => { if (f) keys.add(fileKey(f)); });
+  Object.values(extraFiles).forEach(f => { if (f) keys.add(fileKey(f)); });
+  Object.values(partnerUploads).forEach(f => { if (f) keys.add(fileKey(f)); });
+  Object.values(partnerExtraFiles).forEach(f => { if (f) keys.add(fileKey(f)); });
+  return keys;
+}
+
+// 중복 토스트 팝업
+function showDuplicateToast(filename) {
+  const existing = document.getElementById('dup-toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'dup-toast';
+  toast.style.cssText = `
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    background:#1E2128;color:#fff;padding:16px 22px;border-radius:16px;
+    font-size:14px;font-weight:700;text-align:center;z-index:999;
+    box-shadow:0 8px 32px rgba(30,33,40,.3);max-width:280px;line-height:1.5;
+    font-family:'Pretendard',-apple-system,sans-serif;
+  `;
+  toast.innerHTML = `
+    <div style="font-size:24px;margin-bottom:8px">🚫</div>
+    <div style="margin-bottom:4px">이미 추가된 사진이에요</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.55);font-weight:400">${filename}</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.55);font-weight:400;margin-top:4px">다른 사진을 선택해주세요</div>
+  `;
+  document.querySelector('.shell').appendChild(toast);
+  setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity .3s'; }, 2200);
+  setTimeout(() => toast.remove(), 2500);
+}
+
 // 파일을 objectURL로 변환해 슬롯에 미리보기 표시
 function renderPreview(slot, file, onRemove) {
   const url = URL.createObjectURL(file);
@@ -2310,24 +2349,12 @@ function resetSlot(slot, label) {
   slot.innerHTML = `<div class="slot-req-badge">필수</div><div class="slot-icon">📷</div><div class="slot-label">${label}</div>`;
 }
 
-// 파일 선택 input 생성 및 실행
-function pickImage(callback) {
+// 멀티 파일 선택 (multiple 항상 true)
+function pickImages(callback, allowMultiple = true) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
-  input.onchange = (e) => {
-    const file = e.target.files[0];
-    if (file) callback(file);
-  };
-  input.click();
-}
-
-// 추가 슬롯 파일 선택 (여러 장)
-function pickMultipleImages(callback) {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-  input.multiple = true;
+  input.multiple = allowMultiple;
   input.onchange = (e) => {
     Array.from(e.target.files).forEach(file => callback(file));
   };
@@ -2337,52 +2364,133 @@ function pickMultipleImages(callback) {
 // ═══════════════════════════════════════════
 // 내 진단 업로드
 // ═══════════════════════════════════════════
-const uploads = { 0: null, 1: null, 2: null };  // null = 없음, File = 선택됨
+const uploads = { 0: null, 1: null, 2: null };
 let extraCount = 0;
 const MAX_EXTRA = 7;
-const extraFiles = {};  // { 0: File, 1: File, ... }
+const extraFiles = {};
 
+// 필수 3칸 중 빈 슬롯 찾기
+function getEmptyRequiredSlots() {
+  return [0,1,2].filter(i => !uploads[i]);
+}
+
+// 파일을 빈 필수 슬롯에 순서대로 채우기
+function fillRequiredSlots(files) {
+  const emptySlots = getEmptyRequiredSlots();
+  const existingKeys = getAllFileKeys();
+  let slotIdx = 0;
+  const extras = [];
+
+  files.forEach(file => {
+    // 중복 체크
+    if (existingKeys.has(fileKey(file))) {
+      showDuplicateToast(file.name);
+      return;
+    }
+    existingKeys.add(fileKey(file)); // 이번 배치 내 중복도 방지
+
+    if (slotIdx < emptySlots.length) {
+      // 빈 필수 슬롯에 채우기
+      const idx = emptySlots[slotIdx++];
+      uploads[idx] = file;
+      const slot = document.getElementById('slot-' + idx);
+      renderPreview(slot, file, `clearSlot(${idx})`);
+    } else {
+      // 필수 슬롯 다 찼으면 extra로
+      extras.push(file);
+    }
+  });
+
+  extras.forEach(file => addFileToExtra(file));
+  updateSubmitBtn();
+}
+
+// 필수 슬롯 개별 클릭 — 비어있으면 멀티 선택, 채워져 있으면 제거
 function triggerUpload(idx) {
   const slot = document.getElementById('slot-' + idx);
   if (uploads[idx]) {
     // 이미 있으면 제거
-    URL.revokeObjectURL(slot.querySelector('img')?.src);
+    const img = slot.querySelector('img');
+    if (img) URL.revokeObjectURL(img.src);
     uploads[idx] = null;
     resetSlot(slot, `사진 ${idx + 1}`);
     updateSubmitBtn();
     return;
   }
-  pickImage(file => {
-    uploads[idx] = file;
-    renderPreview(slot, file, `triggerUpload(${idx})`);
-    updateSubmitBtn();
-  });
+  // 빈 슬롯 탭 → 멀티 선택 (선택한 사진들을 빈 슬롯들에 순서대로 채움)
+  pickImages(files => fillRequiredSlots(Array.isArray(files) ? files : [files]));
 }
 
+// 필수 슬롯 탭 이벤트 — 멀티 선택 지원
+function triggerUploadMulti(idx) {
+  const slot = document.getElementById('slot-' + idx);
+  if (uploads[idx]) {
+    const img = slot.querySelector('img');
+    if (img) URL.revokeObjectURL(img.src);
+    uploads[idx] = null;
+    resetSlot(slot, `사진 ${idx + 1}`);
+    updateSubmitBtn();
+    return;
+  }
+  // 멀티 선택으로 빈 슬롯들 한번에 채우기
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.multiple = true;
+  input.onchange = (e) => fillRequiredSlots(Array.from(e.target.files));
+  input.click();
+}
+
+// extra에 파일 추가
+function addFileToExtra(file) {
+  if (extraCount >= MAX_EXTRA) return;
+  const existingKeys = getAllFileKeys();
+  if (existingKeys.has(fileKey(file))) {
+    showDuplicateToast(file.name);
+    return;
+  }
+  const i = extraCount;
+  const lbl = LABELS[3 + i] || '추가';
+  const grid = document.getElementById('extra-grid');
+  const div = document.createElement('div');
+  div.className = 'extra-slot';
+  div.id = 'extra-' + i;
+  const url = URL.createObjectURL(file);
+  div.innerHTML = `
+    <img src="${url}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px">
+    <div class="slot-label" style="position:relative;z-index:1;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)">${lbl}</div>
+    <div class="extra-remove" onclick="removeExtra(${i})">✕</div>
+  `;
+  grid.appendChild(div);
+  extraFiles[i] = file;
+  extraCount++;
+  const remaining = MAX_EXTRA - extraCount;
+  document.getElementById('add-count-label').textContent = remaining > 0 ? `(${remaining}장 더 가능)` : '(최대치 도달)';
+  if (extraCount >= MAX_EXTRA) document.getElementById('add-btn').style.opacity = '0.4';
+}
+
+// 사진 추가하기 버튼 — 멀티 선택
 function addExtraSlot() {
   if (extraCount >= MAX_EXTRA) return;
-  pickMultipleImages(file => {
-    if (extraCount >= MAX_EXTRA) return;
-    const i = extraCount;
-    const lbl = LABELS[3 + i] || '추가';
-    const grid = document.getElementById('extra-grid');
-    const div = document.createElement('div');
-    div.className = 'extra-slot';
-    div.id = 'extra-' + i;
-    const url = URL.createObjectURL(file);
-    div.innerHTML = `
-      <img src="${url}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px">
-      <div class="slot-label" style="position:relative;z-index:1;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)">${lbl}</div>
-      <div class="extra-remove" onclick="removeExtra(${i})">✕</div>
-    `;
-    grid.appendChild(div);
-    extraFiles[i] = file;
-    extraCount++;
-    const remaining = MAX_EXTRA - extraCount;
-    document.getElementById('add-count-label').textContent = remaining > 0 ? `(${remaining}장 더 가능)` : '(최대치 도달)';
-    if (extraCount >= MAX_EXTRA) document.getElementById('add-btn').style.opacity = '0.4';
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.multiple = true;
+  input.onchange = (e) => {
+    Array.from(e.target.files).forEach(file => addFileToExtra(file));
     updateSubmitBtn();
-  });
+  };
+  input.click();
+}
+
+function clearSlot(idx) {
+  const slot = document.getElementById('slot-' + idx);
+  if (!slot) return;
+  const img = slot.querySelector('img');
+  if (img) URL.revokeObjectURL(img.src);
+  uploads[idx] = null;
+  resetSlot(slot, `사진 ${idx + 1}`);
+  updateSubmitBtn();
 }
 
 function removeExtra(i) {
@@ -2401,8 +2509,7 @@ function removeExtra(i) {
 }
 
 function countUploads() {
-  const req = Object.values(uploads).filter(Boolean).length;
-  return req + extraCount;
+  return Object.values(uploads).filter(Boolean).length + extraCount;
 }
 
 function updateSubmitBtn() {
@@ -2423,11 +2530,10 @@ function updateSubmitBtn() {
 
 function resetDiagUpload() {
   [0,1,2].forEach(i => {
-    if (uploads[i]) { uploads[i] = null; }
+    uploads[i] = null;
     const s = document.getElementById('slot-' + i);
     if (s) resetSlot(s, `사진 ${i+1}`);
   });
-  // extra 슬롯 정리
   document.querySelectorAll('#extra-grid .extra-slot').forEach(el => {
     const img = el.querySelector('img');
     if (img) URL.revokeObjectURL(img.src);
