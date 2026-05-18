@@ -48,7 +48,10 @@ visual_order(시각정돈), hygiene(위생청결), consumption(소비계획성10
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 1000 }
+        generationConfig: {
+          temperature: 0.1,
+          maxOutputTokens: 2000,  // thinking 토큰 포함해서 넉넉하게
+        }
       })
     });
 
@@ -59,27 +62,68 @@ visual_order(시각정돈), hygiene(위생청결), consumption(소비계획성10
       return res.status(502).json({ error: 'Gemini API 오류', detail: data?.error?.message });
     }
 
-    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log('Raw:', rawText);
+    // gemini-2.5-flash는 parts가 여러 개일 수 있음 (thinking + text)
+    // 모든 parts의 text를 합쳐서 JSON을 찾음
+    const allParts = data.candidates?.[0]?.content?.parts || [];
+    const fullText = allParts.map(p => p.text || '').join('');
+    console.log('Full text length:', fullText.length);
+    console.log('Full text preview:', fullText.slice(0, 200));
 
-    if (!rawText) return res.status(502).json({ error: '응답이 비어있어요' });
+    if (!fullText) {
+      return res.status(502).json({ error: '응답이 비어있어요' });
+    }
 
+    // JSON 블록 추출 — { 로 시작하는 부분부터 끝까지
     let result;
-    try { result = JSON.parse(rawText.trim()); } catch(_) {}
+
+    // 1단계: 마크다운 제거 후 파싱
+    try {
+      const clean = fullText.replace(/```json|```/g, '').trim();
+      result = JSON.parse(clean);
+    } catch(_) {}
+
+    // 2단계: { } 블록 추출 (thinking 텍스트 앞부분 제거)
     if (!result) {
-      try { result = JSON.parse(rawText.replace(/```json|```/g, '').trim()); } catch(_) {}
+      try {
+        // 마지막 { ... } 블록 찾기 (thinking 이후 실제 JSON)
+        const jsonStart = fullText.lastIndexOf('{');
+        const jsonEnd = fullText.lastIndexOf('}');
+        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+          const jsonStr = fullText.slice(jsonStart, jsonEnd + 1);
+          result = JSON.parse(jsonStr);
+        }
+      } catch(_) {}
     }
+
+    // 3단계: 정규식으로 JSON 블록 찾기
     if (!result) {
-      try { const m = rawText.match(/\{[\s\S]*\}/); if (m) result = JSON.parse(m[0]); } catch(_) {}
+      try {
+        const matches = [...fullText.matchAll(/\{[\s\S]*?\}/g)];
+        for (const m of matches.reverse()) {
+          try {
+            const parsed = JSON.parse(m[0]);
+            if (parsed.scores && parsed.persona) {
+              result = parsed;
+              break;
+            }
+          } catch(_) {}
+        }
+      } catch(_) {}
     }
 
     if (!result) {
-      console.error('Parse failed:', rawText);
-      return res.status(502).json({ error: 'AI 응답 파싱 실패', raw: rawText.slice(0, 500) });
+      console.error('Parse failed. Full text:', fullText.slice(0, 1000));
+      return res.status(502).json({
+        error: 'AI 응답 파싱 실패',
+        raw: fullText.slice(0, 500)
+      });
     }
 
+    // null 축은 bottom3에서 제거
     if (result.scores && result.bottom3) {
-      result.bottom3 = result.bottom3.filter(k => result.scores[k] !== null && result.scores[k] !== undefined);
+      result.bottom3 = result.bottom3.filter(
+        k => result.scores[k] !== null && result.scores[k] !== undefined
+      );
     }
 
     return res.status(200).json(result);
