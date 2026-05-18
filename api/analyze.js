@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -28,9 +27,9 @@ visual_order(시각정돈), hygiene(위생청결), consumption(소비계획성10
 페르소나: 체계적 비축가 / 느긋한 적층형 / 미니멀 즉흥파 / 위생 우선형 / 디지털 체계파 / 쇼룸형
 
 반드시 JSON만 출력. 마크다운 없이:
-{"scores":{"visual_order":75,"hygiene":60,"consumption":70,"planning":80,"space_division":65,"digital":null},"bottom3":["hygiene","digital","space_division"],"persona":"체계적 비축가","persona_main":"체계적","persona_sub":"비축가","tagline":"실제관찰기반한줄설명","insights":{"strength1":"강점1","strength2":"강점2","weakness":"주의점","note":"참고"},"consulting":["제안1","제안2","제안3"],"confidence":80}
+{"scores":{"visual_order":75,"hygiene":60,"consumption":70,"planning":80,"space_division":65,"digital":null},"bottom3":["hygiene","space_division","consumption"],"persona":"체계적 비축가","persona_main":"체계적","persona_sub":"비축가","tagline":"한줄설명","insights":{"strength1":"강점1","strength2":"강점2","weakness":"주의점","note":"참고"},"consulting":["제안1","제안2","제안3"],"confidence":80}
 
-위 JSON 구조를 그대로 사용하되 값만 실제 분석 결과로 채워서 출력하세요.`;
+위 구조 그대로, 값만 실제 분석 결과로 채워 출력하세요.`;
 
     const parts = [
       { text: prompt },
@@ -49,10 +48,7 @@ visual_order(시각정돈), hygiene(위생청결), consumption(소비계획성10
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts }],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 1000,
-        }
+        generationConfig: { temperature: 0.1, maxOutputTokens: 1000 }
       })
     });
 
@@ -64,47 +60,26 @@ visual_order(시각정돈), hygiene(위생청결), consumption(소비계획성10
     }
 
     const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log('Raw response:', rawText);
+    console.log('Raw:', rawText);
 
-    if (!rawText) {
-      console.error('Empty:', JSON.stringify(data));
-      return res.status(502).json({ error: '응답이 비어있어요' });
-    }
+    if (!rawText) return res.status(502).json({ error: '응답이 비어있어요' });
 
-    // JSON 파싱 — 3단계
     let result;
-
-    // 1단계: 그대로 파싱
-    try { result = JSON.parse(rawText.trim()); }
-    catch(_) {}
-
-    // 2단계: 마크다운 제거 후 파싱
+    try { result = JSON.parse(rawText.trim()); } catch(_) {}
     if (!result) {
-      try { result = JSON.parse(rawText.replace(/```json|```/g, '').trim()); }
-      catch(_) {}
+      try { result = JSON.parse(rawText.replace(/```json|```/g, '').trim()); } catch(_) {}
     }
-
-    // 3단계: {} 블록 추출
     if (!result) {
-      try {
-        const m = rawText.match(/\{[\s\S]*\}/);
-        if (m) result = JSON.parse(m[0]);
-      } catch(_) {}
+      try { const m = rawText.match(/\{[\s\S]*\}/); if (m) result = JSON.parse(m[0]); } catch(_) {}
     }
 
     if (!result) {
-      console.error('Parse failed. Raw:', rawText);
-      return res.status(502).json({
-        error: 'AI 응답 파싱 실패',
-        raw: rawText.slice(0, 500)
-      });
+      console.error('Parse failed:', rawText);
+      return res.status(502).json({ error: 'AI 응답 파싱 실패', raw: rawText.slice(0, 500) });
     }
 
-    // null 축은 bottom3에서 제거
     if (result.scores && result.bottom3) {
-      result.bottom3 = result.bottom3.filter(
-        k => result.scores[k] !== null && result.scores[k] !== undefined
-      );
+      result.bottom3 = result.bottom3.filter(k => result.scores[k] !== null && result.scores[k] !== undefined);
     }
 
     return res.status(200).json(result);
