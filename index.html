@@ -2547,6 +2547,59 @@ function resetDiagUpload() {
 }
 
 // 파일을 base64로 변환
+// 이미지 압축 후 base64 변환 (Canvas 사용)
+// maxWidth: 최대 너비, quality: JPEG 품질 0~1
+function compressAndToBase64(file, maxWidth = 1024, quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      // 비율 유지하며 리사이즈
+      let w = img.width;
+      let h = img.height;
+      if (w > maxWidth) {
+        h = Math.round(h * maxWidth / w);
+        w = maxWidth;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width  = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      // base64 추출 (jpeg로 압축)
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve(dataUrl.split(',')[1]);
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+// 원본 파일 크기 체크 팝업
+function showFileSizeToast(filename, sizeMB) {
+  const existing = document.getElementById('size-toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'size-toast';
+  toast.style.cssText = `
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    background:#1E2128;color:#fff;padding:18px 24px;border-radius:16px;
+    font-size:14px;font-weight:700;text-align:center;z-index:999;
+    box-shadow:0 8px 32px rgba(30,33,40,.35);max-width:290px;line-height:1.6;
+    font-family:'Pretendard',-apple-system,sans-serif;
+  `;
+  toast.innerHTML = `
+    <div style="font-size:26px;margin-bottom:8px">⚠️</div>
+    <div style="margin-bottom:4px">사진 크기가 너무 커요</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.55);font-weight:400">${filename}</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.55);font-weight:400;margin-top:4px">${sizeMB}MB → 자동으로 압축해서 전송할게요</div>
+  `;
+  document.querySelector('.shell').appendChild(toast);
+  setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity .3s'; }, 2800);
+  setTimeout(() => toast.remove(), 3100);
+}
+
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -2558,55 +2611,107 @@ function fileToBase64(file) {
 
 // 분석 결과를 화면에 반영
 function applyAnalysisResult(result) {
-  try {
-    // 페르소나 이름
-    const personaEls = document.querySelectorAll('.persona, .latest-persona, .hero-persona-name, .my-card-persona');
-    personaEls.forEach(el => {
-      el.innerHTML = `${result.persona_main} <span>${result.persona_sub}</span>`;
-    });
+  console.log('🔄 applyAnalysisResult 호출:', JSON.stringify(result).slice(0, 200));
 
-    // 태그라인
-    const taglineEls = document.querySelectorAll('.tagline, .latest-tagline, .hero-tagline');
-    taglineEls.forEach(el => { el.textContent = result.tagline; });
-
-    // 6축 바 차트 업데이트
-    const axisMap = {
-      visual_order: '시각정돈',
-      hygiene:      '위생청결',
-      consumption:  '소비성향',
-      planning:     '계획성',
-      space_division:'공간분리',
-      digital:      '디지털'
-    };
-    document.querySelectorAll('.ra-row').forEach(row => {
-      const nameEl = row.querySelector('.ra-name');
-      if (!nameEl) return;
-      const name = nameEl.textContent.trim();
-      const key = Object.keys(axisMap).find(k => axisMap[k] === name);
-      if (!key || result.scores[key] === null) return;
-      const score = result.scores[key];
-      const fill = row.querySelector('.ra-fill');
-      const val  = row.querySelector('.ra-val');
-      if (fill) fill.style.width = score + '%';
-      if (val)  val.textContent = score;
-    });
-
-    // 인사이트
-    const insightItems = document.querySelectorAll('.insight-item .ii-body');
-    const insightData = [
-      result.insights?.strength1,
-      result.insights?.strength2,
-      result.insights?.weakness,
-      result.insights?.note,
-    ].filter(Boolean);
-    insightItems.forEach((el, i) => {
-      if (insightData[i]) el.textContent = insightData[i];
-    });
-
-    console.log('✅ 분석 결과 반영 완료:', result);
-  } catch (e) {
-    console.warn('결과 반영 중 일부 오류:', e);
+  if (!result || !result.scores) {
+    console.error('결과 없음:', result);
+    return;
   }
+
+  // ── 페르소나 ──
+  const main = result.persona_main || result.persona?.split(' ')[0] || '분석';
+  const sub  = result.persona_sub  || result.persona?.split(' ').slice(1).join(' ') || '완료';
+  const tag  = result.tagline || '';
+
+  // Me 상세화면 히어로
+  const heroPersona = document.querySelector('.hero-persona-name');
+  if (heroPersona) heroPersona.innerHTML = `${main} <span>${sub}</span>`;
+
+  const heroTagline = document.querySelector('.hero-tagline');
+  if (heroTagline) heroTagline.textContent = tag;
+
+  // 홈 타임라인 최신 카드
+  const latestPersona = document.querySelector('.latest-persona');
+  if (latestPersona) latestPersona.innerHTML = `${main} <span>${sub}</span>`;
+
+  const latestTagline = document.querySelector('.latest-tagline');
+  if (latestTagline) latestTagline.textContent = tag;
+
+  // 타임라인 카드 (첫 번째 diag-card)
+  const firstPersona = document.querySelector('.diag-entry.latest .persona');
+  if (firstPersona) firstPersona.innerHTML = `${main} <span>${sub}</span>`;
+  const firstTagline = document.querySelector('.diag-entry.latest .tagline');
+  if (firstTagline) firstTagline.textContent = tag;
+
+  // ── 6축 바 차트 ──
+  const axisMap = {
+    visual_order:   '시각정돈',
+    hygiene:        '위생청결',
+    consumption:    '소비성향',
+    planning:       '계획성',
+    space_division: '공간분리',
+    digital:        '디지털'
+  };
+
+  document.querySelectorAll('.ra-row').forEach(row => {
+    const nameEl = row.querySelector('.ra-name');
+    if (!nameEl) return;
+    const name = nameEl.textContent.trim();
+    const key  = Object.keys(axisMap).find(k => axisMap[k] === name);
+    if (!key) return;
+    const score = result.scores[key];
+    if (score === null || score === undefined) return;
+    const fill = row.querySelector('.ra-fill');
+    const val  = row.querySelector('.ra-val');
+    if (fill) fill.style.width = score + '%';
+    if (val)  val.textContent  = score;
+  });
+
+  // ── AI 인사이트 ──
+  const insightItems = document.querySelectorAll('.insight-item');
+  const insightData = [
+    { icon: '✓', type: 'pos', label: '강점', text: result.insights?.strength1 },
+    { icon: '✓', type: 'pos', label: '강점', text: result.insights?.strength2 },
+    { icon: '!', type: 'neg', label: '주의', text: result.insights?.weakness  },
+    { icon: '·', type: 'neu', label: '참고', text: result.insights?.note      },
+  ].filter(d => d.text);
+
+  insightItems.forEach((item, i) => {
+    if (!insightData[i]) return;
+    const d = insightData[i];
+    // 아이콘
+    const icon = item.querySelector('.ii-icon');
+    if (icon) {
+      icon.className = `ii-icon ${d.type}`;
+      icon.textContent = d.icon;
+    }
+    // 레이블
+    const label = item.querySelector('.ii-label');
+    if (label) label.textContent = d.label;
+    // 본문 — 직접 교체
+    const body = item.querySelector('.ii-body');
+    if (body) body.textContent = d.text;
+  });
+
+  // ── 컨설팅 (챌린지탭) ──
+  if (result.consulting && Array.isArray(result.consulting)) {
+    const consultingEls = document.querySelectorAll('#cpanel-consult .ci-text');
+    result.consulting.forEach((text, i) => {
+      if (consultingEls[i]) consultingEls[i].textContent = text;
+    });
+  }
+
+  // ── 날짜 업데이트 ──
+  const today = new Date();
+  const dateStr = `${today.getFullYear()}. ${String(today.getMonth()+1).padStart(2,'0')}. ${String(today.getDate()).padStart(2,'0')}`;
+  document.querySelectorAll('.entry-date').forEach((el, i) => {
+    if (i === 0) {
+      el.innerHTML = `${dateStr} <span class="badge">LATEST</span>`;
+    }
+  });
+  const heroDate = document.querySelector('.hero-eyebrow + * + .hero-tagline');
+
+  console.log('✅ 반영 완료 — 페르소나:', main, sub, '/ 인사이트:', insightData.map(d => d.text?.slice(0,15)));
 }
 
 async function submitDiag() {
@@ -2619,24 +2724,44 @@ async function submitDiag() {
 
   try {
     // 1. 로딩 상태
-    label.textContent = '사진 변환 중... 📸';
+    label.textContent = '사진 압축 중... 📸';
 
-    // 2. 모든 파일을 base64로 변환
+    // 2. 모든 파일을 압축 후 base64로 변환
     const allFiles = [
       uploads[0], uploads[1], uploads[2],
       ...Object.values(extraFiles).filter(Boolean)
     ];
 
-    // 바탕화면 사진 포함 여부 감지 (파일명에 screenshot, desktop, 바탕화면 포함 여부)
+    // 바탕화면 사진 포함 여부 감지
     const desktopKeywords = ['screenshot', 'desktop', '바탕화면', 'screen', 'capture'];
     const hasDesktop = allFiles.some(f =>
       desktopKeywords.some(kw => f.name?.toLowerCase().includes(kw))
     );
 
-    const images = await Promise.all(allFiles.map(async file => ({
-      data: await fileToBase64(file),
-      mediaType: file.type || 'image/jpeg'
-    })));
+    // 파일 크기 체크 및 압축
+    const SIZE_WARN_MB = 3; // 3MB 이상이면 경고
+    const images = await Promise.all(allFiles.map(async file => {
+      const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+      if (file.size > SIZE_WARN_MB * 1024 * 1024) {
+        showFileSizeToast(file.name, sizeMB);
+      }
+      // 항상 압축 적용 (크든 작든 1024px, quality 0.75로 통일)
+      const data = await compressAndToBase64(file, 1024, 0.75);
+      return { data, mediaType: 'image/jpeg' };
+    }));
+
+    // 전체 압축 후 크기 체크 (base64 기준 ~3MB = 원본 ~2.25MB)
+    const totalSize = images.reduce((sum, img) => sum + img.data.length, 0);
+    const totalMB = (totalSize * 0.75 / 1024 / 1024).toFixed(1);
+    console.log(`총 전송 크기: ${totalMB}MB (${images.length}장)`);
+
+    if (totalSize > 4 * 1024 * 1024) {
+      // 그래도 너무 크면 더 강하게 압축
+      const recompressed = await Promise.all(allFiles.map(file =>
+        compressAndToBase64(file, 800, 0.6).then(data => ({ data, mediaType: 'image/jpeg' }))
+      ));
+      images.splice(0, images.length, ...recompressed);
+    }
 
     label.textContent = 'AI 분석 중... 🔍';
 
@@ -2661,8 +2786,8 @@ async function submitDiag() {
       throw new Error(result.error || result.detail || '서버 오류');
     }
 
-    // 4. 결과 화면에 반영
-    label.textContent = '완료! 결과 불러오는 중...';
+    // 4. 결과 화면에 반영 후 이동
+    label.textContent = '완료! ✨';
     applyAnalysisResult(result);
 
     // 5. 초기화 후 결과 화면으로
@@ -2672,7 +2797,9 @@ async function submitDiag() {
       label.textContent = '사진 3장을 먼저 올려주세요';
       closeDiag();
       openMeDetail();
-    }, 800);
+      // 화면 열린 후 한 번 더 반영 (DOM 업데이트 보장)
+      setTimeout(() => applyAnalysisResult(result), 100);
+    }, 600);
 
   } catch (error) {
     console.error('분석 실패:', error);
