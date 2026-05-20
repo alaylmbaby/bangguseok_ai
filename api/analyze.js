@@ -50,7 +50,7 @@ visual_order(시각정돈), hygiene(위생청결), consumption(소비계획성),
       }))
     ];
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
     console.log('Calling Gemini...');
 
     const response = await fetch(geminiUrl, {
