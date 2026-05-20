@@ -2653,7 +2653,6 @@ async function submitDiag() {
     try {
       result = JSON.parse(responseText);
     } catch(e) {
-      // JSON이 아닌 응답 (Vercel 에러 페이지 등)
       console.error('응답 파싱 실패:', responseText.slice(0, 200));
       throw new Error('서버 응답 오류. Vercel 로그를 확인해주세요.');
     }
@@ -2661,8 +2660,6 @@ async function submitDiag() {
     if (!response.ok) {
       throw new Error(result.error || result.detail || '서버 오류');
     }
-
-    const result = await response.json();
 
     // 4. 결과 화면에 반영
     label.textContent = '완료! 결과 불러오는 중...';
