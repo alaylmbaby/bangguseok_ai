@@ -2647,9 +2647,19 @@ async function submitDiag() {
       body: JSON.stringify({ images, hasDesktop })
     });
 
+    // 응답을 텍스트로 먼저 받아서 JSON 파싱 시도
+    const responseText = await response.text();
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch(e) {
+      // JSON이 아닌 응답 (Vercel 에러 페이지 등)
+      console.error('응답 파싱 실패:', responseText.slice(0, 200));
+      throw new Error('서버 응답 오류. Vercel 로그를 확인해주세요.');
+    }
+
     if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error || '서버 오류');
+      throw new Error(result.error || result.detail || '서버 오류');
     }
 
     const result = await response.json();
