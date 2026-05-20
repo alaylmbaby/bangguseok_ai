@@ -38,6 +38,7 @@ planning: 체계화·라벨링 정도
 space_division: 용도별 공간 구분
 digital: ${desktopIncluded ? '디지털 정돈 상태' : 'null (바탕화면 사진 없음)'}
 
+<<<<<<< HEAD
 === 페르소나 선택 ===
 - 체계적 비축가: planning 높음 + visual_order 높음
 - 느긋한 적층형: 전반적으로 낮음
@@ -71,6 +72,12 @@ digital: ${desktopIncluded ? '디지털 정돈 상태' : 'null (바탕화면 사
   "consulting": ["제안1", "제안2", "제안3"],
   "confidence": 숫자
 }`;
+=======
+반드시 JSON만 출력. 마크다운 없이:
+{"scores":{"visual_order":75,"hygiene":60,"consumption":70,"planning":80,"space_division":65,"digital":null},"bottom3":["hygiene","space_division","consumption"],"persona":"체계적 비축가","persona_main":"체계적","persona_sub":"비축가","tagline":"한줄설명","insights":{"strength1":"강점1","strength2":"강점2","weakness":"주의점","note":"참고"},"consulting":["제안1","제안2","제안3"],"confidence":80}
+
+위 구조 그대로, 값만 실제 분석 결과로 채워 출력하세요.`;
+>>>>>>> 8245526323e891fe4ce7c81a7f895b8e04e5888d
 
     const parts = [
       { text: prompt },
@@ -89,7 +96,14 @@ digital: ${desktopIncluded ? '디지털 정돈 상태' : 'null (바탕화면 사
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts }],
+<<<<<<< HEAD
         generationConfig: { temperature: 0.1, maxOutputTokens: 2000 }
+=======
+        generationConfig: {
+          temperature: 0.1,
+          maxOutputTokens: 2000,  // thinking 토큰 포함해서 넉넉하게
+        }
+>>>>>>> 8245526323e891fe4ce7c81a7f895b8e04e5888d
       })
     });
 
@@ -100,15 +114,28 @@ digital: ${desktopIncluded ? '디지털 정돈 상태' : 'null (바탕화면 사
       return res.status(502).json({ error: 'Gemini API 오류', detail: data?.error?.message });
     }
 
+<<<<<<< HEAD
     // 모든 parts 합치기 (thinking + text)
     const allParts = data.candidates?.[0]?.content?.parts || [];
     const fullText = allParts.map(p => p.text || '').join('');
+=======
+    // gemini-2.5-flash는 parts가 여러 개일 수 있음 (thinking + text)
+    // 모든 parts의 text를 합쳐서 JSON을 찾음
+    const allParts = data.candidates?.[0]?.content?.parts || [];
+    const fullText = allParts.map(p => p.text || '').join('');
+    console.log('Full text length:', fullText.length);
+    console.log('Full text preview:', fullText.slice(0, 200));
+>>>>>>> 8245526323e891fe4ce7c81a7f895b8e04e5888d
 
     if (!fullText) {
       return res.status(502).json({ error: '응답이 비어있어요' });
     }
 
+<<<<<<< HEAD
     // JSON 파싱 3단계
+=======
+    // JSON 블록 추출 — { 로 시작하는 부분부터 끝까지
+>>>>>>> 8245526323e891fe4ce7c81a7f895b8e04e5888d
     let result;
 
     // 1단계: 마크다운 제거 후 파싱
@@ -117,6 +144,7 @@ digital: ${desktopIncluded ? '디지털 정돈 상태' : 'null (바탕화면 사
       result = JSON.parse(clean);
     } catch(_) {}
 
+<<<<<<< HEAD
     // 2단계: lastIndexOf로 마지막 JSON 블록 추출 (thinking 이후)
     if (!result) {
       try {
@@ -124,10 +152,22 @@ digital: ${desktopIncluded ? '디지털 정돈 상태' : 'null (바탕화면 사
         const jsonEnd = fullText.lastIndexOf('}');
         if (jsonStart !== -1 && jsonEnd > jsonStart) {
           result = JSON.parse(fullText.slice(jsonStart, jsonEnd + 1));
+=======
+    // 2단계: { } 블록 추출 (thinking 텍스트 앞부분 제거)
+    if (!result) {
+      try {
+        // 마지막 { ... } 블록 찾기 (thinking 이후 실제 JSON)
+        const jsonStart = fullText.lastIndexOf('{');
+        const jsonEnd = fullText.lastIndexOf('}');
+        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+          const jsonStr = fullText.slice(jsonStart, jsonEnd + 1);
+          result = JSON.parse(jsonStr);
+>>>>>>> 8245526323e891fe4ce7c81a7f895b8e04e5888d
         }
       } catch(_) {}
     }
 
+<<<<<<< HEAD
     // 3단계: scores + persona 포함한 블록 찾기
     if (!result) {
       try {
@@ -136,12 +176,26 @@ digital: ${desktopIncluded ? '디지털 정돈 상태' : 'null (바탕화면 사
           try {
             const p = JSON.parse(m[0]);
             if (p.scores && p.persona) { result = p; break; }
+=======
+    // 3단계: 정규식으로 JSON 블록 찾기
+    if (!result) {
+      try {
+        const matches = [...fullText.matchAll(/\{[\s\S]*?\}/g)];
+        for (const m of matches.reverse()) {
+          try {
+            const parsed = JSON.parse(m[0]);
+            if (parsed.scores && parsed.persona) {
+              result = parsed;
+              break;
+            }
+>>>>>>> 8245526323e891fe4ce7c81a7f895b8e04e5888d
           } catch(_) {}
         }
       } catch(_) {}
     }
 
     if (!result) {
+<<<<<<< HEAD
       console.error('Parse failed:', fullText.slice(0, 1000));
       return res.status(502).json({ error: 'AI 응답 파싱 실패', raw: fullText.slice(0, 500) });
     }
@@ -170,6 +224,13 @@ digital: ${desktopIncluded ? '디지털 정돈 상태' : 'null (바탕화면 사
     // 바탕화면 안 올렸으면 digital 강제 null
     if (!desktopIncluded) {
       if (result.scores) result.scores.digital = null;
+=======
+      console.error('Parse failed. Full text:', fullText.slice(0, 1000));
+      return res.status(502).json({
+        error: 'AI 응답 파싱 실패',
+        raw: fullText.slice(0, 500)
+      });
+>>>>>>> 8245526323e891fe4ce7c81a7f895b8e04e5888d
     }
 
     // null 축은 bottom3에서 제거
