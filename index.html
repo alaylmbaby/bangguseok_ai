@@ -2627,6 +2627,12 @@ async function submitDiag() {
       ...Object.values(extraFiles).filter(Boolean)
     ];
 
+    // 바탕화면 사진 포함 여부 감지 (파일명에 screenshot, desktop, 바탕화면 포함 여부)
+    const desktopKeywords = ['screenshot', 'desktop', '바탕화면', 'screen', 'capture'];
+    const hasDesktop = allFiles.some(f =>
+      desktopKeywords.some(kw => f.name?.toLowerCase().includes(kw))
+    );
+
     const images = await Promise.all(allFiles.map(async file => ({
       data: await fileToBase64(file),
       mediaType: file.type || 'image/jpeg'
@@ -2638,7 +2644,7 @@ async function submitDiag() {
     const response = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ images })
+      body: JSON.stringify({ images, hasDesktop })
     });
 
     if (!response.ok) {
