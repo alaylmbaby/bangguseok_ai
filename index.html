@@ -10,21 +10,23 @@
 :root {
   --bg:       #FFFFFF;
   --bg-card:  #FFFFFF;
-  --bg-deep:  #EEF1F6;
+  --bg-deep:  #F4F3FD;
   --ink:      #1E2128;
   --ink-soft: #3D4455;
   --ink-mute: #7A8196;
-  --line:     #DDE1EA;
+  --line:     #E2E0F5;
   --card-shadow: 0 2px 0 rgba(30,33,40,.05), 0 6px 20px -6px rgba(30,33,40,.1);
   --card-shadow-sm: 0 1px 0 rgba(30,33,40,.04), 0 3px 10px -4px rgba(30,33,40,.08);
-  --card-border: 1px solid #E4E7EF;
-  --accent:   #E8402A;
-  --accent-s: #FEF0ED;
-  --green:    #4E6035;
-  --green-bg: rgba(78,96,53,.1);
-  --red-bg:   rgba(232,64,42,.1);
-  --blue:     #3A5F8A;
-  --blue-bg:  rgba(58,95,138,.08);
+  --card-border: 1px solid #E2E0F5;
+  --accent:   #534AB7;
+  --accent-s: #EEEDFE;
+  --accent-d: #26215C;
+  --accent-m: #3C3489;
+  --green:    #0F6E56;
+  --green-bg: rgba(29,158,117,.1);
+  --red-bg:   rgba(83,74,183,.08);
+  --blue:     #534AB7;
+  --blue-bg:  rgba(83,74,183,.08);
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -50,7 +52,7 @@ html,body{
 
 /* ── HEADER ── */
 .header{
-  padding:18px 24px 14px;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:20px 24px 14px;display:flex;align-items:flex-end;justify-content:space-between;
   flex-shrink:0;border-bottom:1px solid transparent;transition:border-color .2s;
 }
 .header.lined{border-bottom-color:var(--line)}
@@ -61,7 +63,7 @@ html,body{
   font-size:26px;font-weight:800;letter-spacing:-.04em;line-height:1.2;color:var(--ink);
 }
 .app-title span{color:var(--accent);font-weight:800;}
-.app-sub{font-size:10px;color:var(--ink-mute);letter-spacing:.04em;font-weight:400;}
+.app-sub{font-size:10px;color:var(--accent);opacity:.6;letter-spacing:.04em;font-weight:600;}
 .back-btn{
   width:36px;height:36px;border-radius:50%;background:var(--bg-deep);
   display:grid;place-items:center;cursor:pointer;font-size:17px;flex-shrink:0;
@@ -98,23 +100,29 @@ html,body{
 .dot{position:absolute;left:7px;top:16px;width:11px;height:11px;border-radius:50%;z-index:2}
 .new-entry .dot{background:var(--bg);border:1.5px dashed var(--ink-mute)}
 .diag-entry .dot{background:var(--bg);border:2px solid var(--ink-mute)}
-.diag-entry.latest .dot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 3.5px rgba(232,64,42,.14)}
+.diag-entry.latest .dot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 3.5px rgba(83,74,183,.14)}
 .diag-entry.older .dot{border-color:var(--line)}
 
 /* new entry button */
 .new-btn{
-  width:100%;background:var(--accent);border:none;border-radius:16px;
-  padding:18px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;
-  transition:filter .18s,transform .18s;text-align:left;
-  box-shadow:0 4px 16px -4px rgba(232,64,42,.4);
+  width:100%;background:#fff;border:2px solid var(--accent);border-radius:16px;
+  padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  transition:background .18s,transform .18s;text-align:left;
+  box-shadow:var(--card-shadow);
 }
-.new-btn:active{filter:brightness(.92);transform:scale(.985)}
+.new-btn:active{background:var(--accent-s);transform:scale(.985)}
 .new-btn-icon{
-  width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.2);
-  display:grid;place-items:center;flex-shrink:0;font-size:20px;
+  width:52px;height:52px;border-radius:13px;background:var(--accent);
+  display:grid;place-items:center;flex-shrink:0;font-size:22px;color:#fff;
+  flex-shrink:0;
 }
-.new-btn .t{font-size:16px;font-weight:800;color:#fff;margin-bottom:3px;letter-spacing:-.02em}
-.new-btn .s{font-size:12px;color:rgba(255,255,255,.7)}
+.new-btn-mid{flex:1;min-width:0}
+.new-btn .t{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:3px;letter-spacing:-.02em}
+.new-btn .s{font-size:12px;color:var(--ink-mute)}
+.new-btn-arrow{
+  width:32px;height:32px;background:var(--accent);border-radius:50%;
+  display:grid;place-items:center;flex-shrink:0;color:#fff;font-size:16px;
+}
 
 /* entry date */
 .entry-date{
@@ -130,13 +138,13 @@ html,body{
 /* diag card */
 .diag-card{
   background:#fff;border-radius:16px;padding:14px 16px;
-  border:var(--card-border);border-left:3px solid var(--accent);
+  border:var(--card-border);border-left:3px solid #534AB7;
   box-shadow:var(--card-shadow);
   cursor:pointer;display:flex;align-items:center;gap:12px;
   transition:transform .18s,box-shadow .18s;
 }
 .diag-card:active{transform:scale(.988);box-shadow:var(--card-shadow-sm)}
-.diag-entry.older .diag-card{background:#fff;border:var(--card-border);border-left:3px solid var(--line);box-shadow:var(--card-shadow-sm)}
+.diag-entry.older .diag-card{background:#fff;border:var(--card-border);border-left:none;box-shadow:var(--card-shadow-sm)}
 
 /* 픽토그램 아이콘 */
 .picto{
@@ -156,8 +164,8 @@ html,body{
 
 .diag-card-right{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 .delta{font-size:12px;font-weight:600;padding:3px 9px;border-radius:100px;white-space:nowrap}
-.delta.up{background:var(--green-bg);color:var(--green)}
-.delta.down{background:var(--red-bg);color:var(--accent)}
+.delta.up{background:rgba(29,158,117,.1);color:#0F6E56}
+.delta.down{background:rgba(200,30,30,.1);color:#C01E1E}
 .delta.same{background:var(--bg-deep);color:var(--ink-mute)}
 .chevron{color:var(--line);font-size:14px}
 
@@ -171,12 +179,12 @@ html,body{
    ME DETAIL SCREEN
 ══════════════════════════════ */
 .me-detail-hero{
-  background:var(--ink);color:var(--bg);padding:26px 24px 24px;
+  background:#534AB7;color:#fff;padding:26px 24px 24px;
   position:relative;overflow:hidden;flex-shrink:0;
 }
 .me-detail-hero::after{
   content:"";position:absolute;top:-50px;right:-50px;width:200px;height:200px;
-  background:radial-gradient(circle,rgba(232,64,42,.35),transparent 65%);pointer-events:none;
+  background:radial-gradient(circle,rgba(83,74,183,.35),transparent 65%);pointer-events:none;
 }
 .hero-picto{
   width:64px;height:64px;border-radius:18px;display:grid;place-items:center;
@@ -203,7 +211,7 @@ html,body{
 .ra-row{display:flex;align-items:center;gap:8px}
 .ra-name{font-size:11px;color:var(--ink-soft);width:52px;flex-shrink:0}
 .ra-bar{flex:1;height:3px;background:var(--bg-deep);border-radius:100px;overflow:hidden}
-.ra-fill{height:100%;background:var(--accent);border-radius:100px}
+.ra-fill{height:100%;background:#534AB7;border-radius:100px}
 .ra-val{font-size:13px;font-weight:700;color:var(--ink);width:24px;text-align:right;letter-spacing:-.02em}
 
 /* insight */
@@ -229,17 +237,17 @@ html,body{
 .my-card-wrap{padding:20px 20px 0}
 .my-card-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute);font-weight:600;margin-bottom:10px;padding-left:2px}
 .my-card{
-  background:var(--ink);color:var(--bg);border-radius:20px;padding:20px 22px;
+  background:var(--accent-s);color:var(--accent-d);border-radius:20px;padding:18px 20px;
   position:relative;overflow:hidden;
-  box-shadow:0 4px 20px -6px rgba(30,33,40,.35);
+  border:1.5px solid rgba(83,74,183,.2);
 }
 .my-card::before{
   content:"";position:absolute;top:-40px;right:-40px;width:160px;height:160px;
-  background:radial-gradient(circle,rgba(232,64,42,.5),transparent 70%);pointer-events:none;
+  background:radial-gradient(circle,rgba(83,74,183,.5),transparent 70%);pointer-events:none;
 }
 .my-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
-.my-card-persona{font-size:22px;font-weight:800;letter-spacing:-.04em;line-height:1.1}
-.my-card-persona span{font-weight:300;opacity:.7}
+.my-card-persona{font-size:20px;font-weight:800;letter-spacing:-.04em;line-height:1.1;color:var(--accent-d)}
+.my-card-persona span{font-weight:400;color:var(--accent)}
 .my-card-date{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(248,249,251,.4);font-weight:500;margin-top:3px}
 .my-card-chip{
   background:rgba(248,249,251,.12);color:rgba(248,249,251,.7);
@@ -261,7 +269,7 @@ html,body{
   display:flex;flex-direction:column;gap:12px;transition:transform .18s;text-align:left;border:none;
 }
 .add-btn:active{transform:scale(.97)}
-.add-btn.invite{background:var(--ink);color:var(--bg)}
+.add-btn.invite{background:var(--accent);color:#fff}
 .add-btn.direct{background:var(--bg-card);border:1.5px dashed var(--line);color:var(--ink)}
 .add-btn-icon{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:16px}
 .add-btn.invite .add-btn-icon{background:rgba(248,249,251,.12)}
@@ -277,7 +285,7 @@ html,body{
 .history-grid{display:flex;flex-direction:column;gap:14px}
 .history-file{
   background:#fff;border-radius:16px;padding:13px 15px;
-  border:var(--card-border);border-left:3px solid var(--accent);
+  border:var(--card-border);border-left:none;
   box-shadow:var(--card-shadow);
   cursor:pointer;display:flex;align-items:center;gap:13px;transition:transform .18s;
 }
@@ -286,9 +294,9 @@ html,body{
   width:44px;height:44px;border-radius:12px;flex-shrink:0;
   display:grid;place-items:center;font-size:20px;position:relative;
 }
-.fa-couple{background:linear-gradient(135deg,#FDECEA,#FBCFC9)}
+.fa-couple{background:linear-gradient(135deg,#EEEDFE,#CECBF6)}
 .fa-friend{background:linear-gradient(135deg,#C8E8D8,#E8EDF8)}
-.fa-cowork{background:linear-gradient(135deg,#FBCFC9,#D8C8E8)}
+.fa-cowork{background:linear-gradient(135deg,#CECBF6,#D8C8E8)}
 .file-badge{
   position:absolute;bottom:-3px;right:-3px;font-size:11px;
   width:18px;height:18px;background:var(--bg-card);border-radius:5px;
@@ -297,12 +305,12 @@ html,body{
 .file-body{flex:1;min-width:0}
 .file-names{font-size:16px;font-weight:700;letter-spacing:-.02em;margin-bottom:2px;line-height:1.2}
 .file-names span{font-weight:300;color:var(--ink-soft)}
-.file-meta{font-size:11px;color:var(--ink-mute);display:flex;align-items:center;gap:6px}
+.file-meta{font-size:11px;color:var(--ink-mute)}
 .fmeta-dot{width:3px;height:3px;border-radius:50%;background:var(--line);flex-shrink:0}
 .file-score{flex-shrink:0;display:flex;align-items:baseline;gap:1px}
 .score-num{font-size:18px;font-weight:800;letter-spacing:-.03em;line-height:1}
 .score-label{font-size:14px;font-weight:600;color:var(--ink-mute);margin-left:1px}
-.score-num.high{color:var(--green)}.score-num.mid{color:var(--ink)}.score-num.low{color:var(--accent)}
+.score-num.high{color:#0F6E56}.score-num.mid{color:var(--ink)}.score-num.low{color:#C01E1E}
 
 /* ══════════════════════════════
    US DETAIL SCREEN
@@ -316,11 +324,11 @@ html,body{
 .ud-header-text .name span{font-weight:300;color:var(--ink-soft)}
 
 .score-hero{
-  background:var(--ink);padding:26px 24px 24px;position:relative;overflow:hidden;flex-shrink:0;
+  background:#534AB7;padding:26px 24px 24px;position:relative;overflow:hidden;flex-shrink:0;
 }
 .score-hero::before{
   content:"";position:absolute;top:-60px;left:-60px;width:220px;height:220px;
-  background:radial-gradient(circle,rgba(232,64,42,.28),transparent 65%);pointer-events:none;
+  background:radial-gradient(circle,rgba(83,74,183,.28),transparent 65%);pointer-events:none;
 }
 .score-hero::after{
   content:"";position:absolute;bottom:-40px;right:-30px;width:160px;height:160px;
@@ -339,7 +347,7 @@ html,body{
 .sh-slabel{font-size:12px;color:rgba(248,249,251,.35);padding-bottom:8px;line-height:1.4;max-width:110px}
 
 /* compare table */
-.cmp-table{background:#fff;border-radius:16px;border:var(--card-border);border-left:3px solid var(--accent);box-shadow:var(--card-shadow);overflow:hidden}
+.cmp-table{background:#fff;border-radius:16px;border:var(--card-border);border-left:3px solid #534AB7;box-shadow:var(--card-shadow);overflow:hidden}
 .cmp-row{display:grid;grid-template-columns:1fr 2fr 1fr;align-items:center;padding:10px 15px;border-bottom:1px solid var(--line);gap:8px}
 .cmp-row:last-child{border-bottom:none}
 .cmp-row.hd{padding:7px 15px;background:var(--bg-deep)}
@@ -402,11 +410,11 @@ html,body{
   background:rgba(255,255,255,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-top:1px solid var(--line);
   padding:10px 0 max(14px,env(safe-area-inset-bottom));
-  display:grid;grid-template-columns:1fr 1fr 1fr 1fr;z-index:50;
+  display:grid;grid-template-columns:1fr 1fr 1fr 1fr;z-index:50;padding:0 8px;
 }
-.tab{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:var(--ink-mute);padding:5px 0;transition:color .15s}
-.tab.active{color:var(--accent)}
-.tab-label{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:var(--ink-mute);padding:5px 8px;transition:all .2s;border-radius:100px;}
+.tab.active{color:#fff;background:var(--accent);}
+.tab-label{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
 
 /* ── 홈 최신 카드 (다크) ── */
 .latest-card {
@@ -429,13 +437,13 @@ html,body{
 .latest-glow {
   position:absolute;top:-40px;right:-40px;
   width:160px;height:160px;
-  background:radial-gradient(circle,rgba(232,64,42,.4),transparent 70%);
+  background:radial-gradient(circle,rgba(83,74,183,.4),transparent 70%);
   pointer-events:none;z-index:0;
 }
 
 .latest-picto {
   width:48px;height:48px;border-radius:14px;
-  background:rgba(232,64,42,.14);
+  background:rgba(83,74,183,.14);
   display:grid;place-items:center;flex-shrink:0;
   margin-bottom:12px;
 }
@@ -510,13 +518,13 @@ html,body{
 /* 인트로 배너 */
 .diag-intro {
   margin:20px 20px 0;
-  background:var(--ink);border-radius:20px;padding:22px 22px 20px;
+  background:#534AB7;border-radius:20px;padding:22px 22px 20px;
   position:relative;overflow:hidden;
-  box-shadow:0 4px 20px -6px rgba(30,33,40,.3);
+  box-shadow:0 4px 20px -6px rgba(83,74,183,.3);
 }
 .diag-intro::before {
   content:"";position:absolute;top:-40px;right:-40px;width:150px;height:150px;
-  background:radial-gradient(circle,rgba(185,70,26,.55),transparent 70%);pointer-events:none;
+  background:radial-gradient(circle,rgba(83,74,183,.55),transparent 70%);pointer-events:none;
 }
 .di-eyebrow { font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(248,249,251,.45);margin-bottom:10px }
 .di-title { font-size:20px;font-weight:800;letter-spacing:-.04em;line-height:1.25;color:#fff;margin-bottom:8px }
@@ -613,7 +621,7 @@ html,body{
   background:#fff;border-radius:14px;padding:13px 13px 12px;
   box-shadow:var(--card-shadow-sm);
 }
-.pg-item.req-photo { border-color:rgba(232,64,42,.25);background:#FDF6F2 }
+.pg-item.req-photo { border-color:rgba(83,74,183,.25);background:#FDF6F2 }
 .pg-icon { font-size:22px;margin-bottom:7px;line-height:1 }
 .pg-name { font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;letter-spacing:-.01em }
 .pg-tags { display:flex;flex-wrap:wrap;gap:4px }
@@ -621,7 +629,7 @@ html,body{
   font-size:10px;font-weight:600;padding:2px 7px;border-radius:100px;
   background:var(--bg-deep);color:var(--ink-mute);
 }
-.pg-tag.axis-tag { background:rgba(232,64,42,.1);color:var(--accent) }
+.pg-tag.axis-tag { background:rgba(83,74,183,.1);color:var(--accent) }
 .pg-badge { font-size:9px;font-weight:800;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px }
 
 /* Q&A 섹션 */
@@ -662,7 +670,7 @@ html,body{
   font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:100px;
   background:var(--bg-deep);color:var(--ink-mute);white-space:nowrap;
 }
-.axis-pill.strong { background:rgba(232,64,42,.12);color:var(--accent) }
+.axis-pill.strong { background:rgba(83,74,183,.12);color:var(--accent) }
 .axis-pill.mid { background:rgba(78,96,53,.1);color:var(--green) }
 
 /* ══════════════════════════════
@@ -798,7 +806,7 @@ html,body{
 }
 .rel-chip:active { transform:scale(.95) }
 .rel-chip.selected {
-  background:var(--ink);color:#fff;border-color:var(--ink);
+  background:var(--accent);color:#fff;border-color:var(--accent);
 }
 .rel-chip.selected.accent { background:var(--accent);border-color:var(--accent) }
 
@@ -832,7 +840,7 @@ html,body{
   display:flex;align-items:center;justify-content:center;gap:10px;
 }
 .submit-btn:active { transform:scale(.98) }
-.submit-btn.ready { background:var(--accent) }
+.submit-btn.ready { background:var(--accent);box-shadow:0 4px 16px -4px rgba(83,74,183,.4) }
 .submit-btn .btn-sub { font-size:11px;font-weight:500;opacity:.6 }
 </style>
 </head>
@@ -848,138 +856,108 @@ html,body{
 <div class="screen" id="screen-me">
   <div class="header" id="me-header">
     <div class="app-name">
-      <div class="app-title">공간과 습관이 말하는 <span>나</span></div>
+      <div style="font-size:14px;color:var(--ink-mute);margin-bottom:2px">공간이 말하는</div>
+      <div class="app-title">지금의 <span>나</span></div>
+    </div>
+    <div style="width:40px;height:40px;border-radius:50%;background:var(--accent-s);display:grid;place-items:center;flex-shrink:0">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="#534AB7" stroke-width="1.7"/><path d="M5 20c1.5-3.5 4-5 7-5s5.5 1.5 7 5" stroke="#534AB7" stroke-width="1.7" stroke-linecap="round"/></svg>
     </div>
   </div>
 
   <div class="scroll" id="me-scroll">
 
-    <div class="tl-row"><h2>Timeline</h2><span>총 4개</span></div>
-
-    <div class="timeline">
-
-      <!-- 새 진단 -->
-      <div class="entry new-entry">
-        <div class="dot"></div>
-        <button class="new-btn" onclick="openDiag()">
-          <div class="new-btn-icon">＋</div>
-          <div>
-            <div class="t">새 진단 시작하기</div>
-            <div class="s">사진 3장 · 약 5분</div>
-          </div>
-        </button>
-      </div>
-
-      <!-- LATEST -->
-      <div class="entry diag-entry latest">
-        <div class="dot"></div>
-        <div class="entry-date">2026. 05. 12 <span class="badge">LATEST</span></div>
-        <div class="latest-card" onclick="openMeDetail()">
-          <div class="latest-glow"></div>
-          <div class="latest-card-inner">
-            <!-- 우상단 증감 -->
-            <div style="position:absolute;top:18px;right:20px;z-index:2;text-align:right">
-              <div class="latest-delta">↑ 12점 상승</div>
-              <div style="font-size:10px;color:rgba(248,249,251,.35);margin-top:3px;font-weight:500">지난 진단 대비</div>
-            </div>
-            <div class="latest-picto">
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                <rect x="3" y="16" width="22" height="9" rx="2.5" fill="#E8402A" opacity=".3"/>
-                <rect x="3" y="16" width="22" height="9" rx="2.5" stroke="#F0A090" stroke-width="1.6"/>
-                <rect x="6" y="9" width="16" height="8" rx="2" fill="#E8402A" opacity=".45"/>
-                <rect x="6" y="9" width="16" height="8" rx="2" stroke="#F0A090" stroke-width="1.6"/>
-                <rect x="9" y="3" width="10" height="7" rx="1.5" fill="#E8402A" opacity=".65"/>
-                <rect x="9" y="3" width="10" height="7" rx="1.5" stroke="#F0A090" stroke-width="1.6"/>
-              </svg>
-            </div>
-            <div class="latest-body">
-              <div class="latest-type-label">My Habit Type</div>
-              <div class="latest-persona">체계적 <span>비축가</span></div>
-              <div class="latest-tagline">계획해서 사두고, 자리를 정해두는 사람.<br>눈에 보이는 질서가 내면의 안정으로 이어지는 유형.</div>
-            </div>
-          </div>
-          <div class="latest-chevron">›</div>
+    <!-- 새 진단 CTA — D안 -->
+    <div style="padding:16px 20px 0">
+      <button class="new-btn" onclick="openDiag()">
+        <div class="new-btn-icon">＋</div>
+        <div class="new-btn-mid">
+          <div class="t">새 진단 시작하기</div>
+          <div class="s">사진 업로드 → AI분석 → 결과</div>
         </div>
-      </div>
+        <div class="new-btn-arrow">›</div>
+      </button>
+    </div>
 
-      <!-- PAST 1 -->
-      <div class="entry diag-entry older">
-        <div class="dot"></div>
-        <div class="entry-date">2026. 02. 03</div>
-        <div class="diag-card">
-          <div class="picto" style="background:#E4EDD8">
-            <!-- 픽토: 느긋한 적층형 — 물건들이 겹쳐 쌓인 모양 -->
+    <!-- 섹션 헤더 -->
+    <div style="padding:20px 20px 12px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:16px;font-weight:700;color:var(--ink)">내 진단 기록</span>
+      <span style="font-size:12px;font-weight:600;color:var(--accent)">모두 보기</span>
+    </div>
+
+    <!-- 최신 카드 — 퍼플 꽉 찬 -->
+    <div style="padding:0 20px;margin-bottom:10px">
+      <div class="latest-card" onclick="openMeDetail()">
+        <div class="latest-glow"></div>
+        <div class="latest-card-inner">
+          <div style="position:absolute;top:16px;right:16px;z-index:2;text-align:right">
+            <div class="latest-delta">↑ 12점 상승</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px">지난 진단 대비</div>
+          </div>
+          <div class="latest-picto">
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <rect x="4" y="19" width="20" height="5" rx="2" fill="#5C7A32" opacity=".25"/>
-              <rect x="4" y="19" width="20" height="5" rx="2" stroke="#5C7A32" stroke-width="1.5"/>
-              <rect x="6" y="13" width="15" height="7" rx="2" fill="#5C7A32" opacity=".35" transform="rotate(-3 6 13)"/>
-              <rect x="6" y="13" width="15" height="7" rx="2" stroke="#5C7A32" stroke-width="1.5" transform="rotate(-3 6 13)"/>
-              <rect x="7" y="7" width="13" height="7" rx="2" fill="#5C7A32" opacity=".5" transform="rotate(4 7 7)"/>
-              <rect x="7" y="7" width="13" height="7" rx="2" stroke="#5C7A32" stroke-width="1.5" transform="rotate(4 7 7)"/>
+              <rect x="3" y="16" width="22" height="9" rx="2.5" fill="#534AB7" opacity=".3"/>
+              <rect x="3" y="16" width="22" height="9" rx="2.5" stroke="#AFA9EC" stroke-width="1.6"/>
+              <rect x="6" y="9" width="16" height="8" rx="2" fill="#534AB7" opacity=".45"/>
+              <rect x="6" y="9" width="16" height="8" rx="2" stroke="#AFA9EC" stroke-width="1.6"/>
+              <rect x="9" y="3" width="10" height="7" rx="1.5" fill="#534AB7" opacity=".65"/>
+              <rect x="9" y="3" width="10" height="7" rx="1.5" stroke="#AFA9EC" stroke-width="1.6"/>
             </svg>
           </div>
-          <div class="diag-card-body">
-            <div class="persona">느긋한 <span>적층형</span></div>
-            <div class="tagline">쌓아두는 게 익숙했던 시기</div>
+          <div class="latest-body">
+            <div class="latest-type-label">2026.05.12 · LATEST</div>
+            <div class="latest-persona">체계적 <span>비축가</span></div>
+            <div class="latest-tagline">계획해서 사두고, 자리를 정해두는 사람</div>
+            <div style="display:flex;gap:5px;margin-top:10px">
+              <span style="font-size:10px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.75);padding:3px 9px;border-radius:100px">시각정돈 80</span>
+              <span style="font-size:10px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.75);padding:3px 9px;border-radius:100px">계획성 90</span>
+              <span style="font-size:10px;background:rgba(255,255,255,.15);color:#CECBF6;padding:3px 9px;border-radius:100px">디지털 60↓</span>
+            </div>
           </div>
-          <div class="diag-card-right">
-            <div class="delta same">— 유지</div>
-            <div class="chevron">›</div>
-          </div>
+        </div>
+        <div class="latest-chevron">›</div>
+      </div>
+    </div>
+
+    <!-- 과거 카드 — 가로형 아이콘+화살표 -->
+    <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
+
+      <div class="diag-card" onclick="openMeDetail()">
+        <div style="width:40px;height:40px;background:#E1F5EE;border-radius:11px;display:grid;place-items:center;flex-shrink:0;font-size:20px">📦</div>
+        <div class="diag-card-body">
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">느긋한 <span style="font-weight:400;color:var(--ink-soft)">적층형</span></div>
+          <div style="font-size:12px;color:var(--ink-mute)">2026.02.03 · 쌓아두던 시기</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="delta same">— 유지</div>
+          <div class="chevron">›</div>
         </div>
       </div>
 
-      <!-- PAST 2 -->
-      <div class="entry diag-entry older">
-        <div class="dot"></div>
-        <div class="entry-date">2025. 11. 18</div>
-        <div class="diag-card">
-          <div class="picto" style="background:#E4EDD8">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <rect x="4" y="19" width="20" height="5" rx="2" fill="#5C7A32" opacity=".25"/>
-              <rect x="4" y="19" width="20" height="5" rx="2" stroke="#5C7A32" stroke-width="1.5"/>
-              <rect x="6" y="13" width="15" height="7" rx="2" fill="#5C7A32" opacity=".35" transform="rotate(-3 6 13)"/>
-              <rect x="6" y="13" width="15" height="7" rx="2" stroke="#5C7A32" stroke-width="1.5" transform="rotate(-3 6 13)"/>
-              <rect x="7" y="7" width="13" height="7" rx="2" fill="#5C7A32" opacity=".5" transform="rotate(4 7 7)"/>
-              <rect x="7" y="7" width="13" height="7" rx="2" stroke="#5C7A32" stroke-width="1.5" transform="rotate(4 7 7)"/>
-            </svg>
-          </div>
-          <div class="diag-card-body">
-            <div class="persona">느긋한 <span>적층형</span></div>
-            <div class="tagline">필요할 때마다 사고, 쌓아두던 때</div>
-          </div>
-          <div class="diag-card-right">
-            <div class="delta down">↓ 6점</div>
-            <div class="chevron">›</div>
-          </div>
+      <div class="diag-card" onclick="openMeDetail()">
+        <div style="width:40px;height:40px;background:#FAEEDA;border-radius:11px;display:grid;place-items:center;flex-shrink:0;font-size:20px">🪟</div>
+        <div class="diag-card-body">
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">느긋한 <span style="font-weight:400;color:var(--ink-soft)">적층형</span></div>
+          <div style="font-size:12px;color:var(--ink-mute)">2025.11.18 · 쌓아두던 때</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="delta down">↓ 6점</div>
+          <div class="chevron">›</div>
         </div>
       </div>
 
-      <!-- PAST 3 -->
-      <div class="entry diag-entry older">
-        <div class="dot"></div>
-        <div class="entry-date">2025. 08. 24</div>
-        <div class="diag-card">
-          <div class="picto" style="background:#E0EDF4">
-            <!-- 픽토: 미니멀 즉흥파 — 빈 공간, 점 하나 -->
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <rect x="4" y="4" width="20" height="20" rx="4" stroke="#3A7FA8" stroke-width="1.5" stroke-dasharray="3 2"/>
-              <circle cx="14" cy="14" r="3" fill="#3A7FA8" opacity=".6"/>
-              <circle cx="14" cy="14" r="1.5" fill="#3A7FA8"/>
-            </svg>
-          </div>
-          <div class="diag-card-body">
-            <div class="persona">미니멀 <span>즉흥파</span></div>
-            <div class="tagline">비어 있는 공간을 선호했던 출발점</div>
-          </div>
-          <div class="diag-card-right">
-            <div class="delta same">— 첫 진단</div>
-            <div class="chevron">›</div>
-          </div>
+      <div class="diag-card" onclick="openMeDetail()">
+        <div style="width:40px;height:40px;background:#EEEDFE;border-radius:11px;display:grid;place-items:center;flex-shrink:0;font-size:20px">✨</div>
+        <div class="diag-card-body">
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">미니멀 <span style="font-weight:400;color:var(--ink-soft)">즉흥파</span></div>
+          <div style="font-size:12px;color:var(--ink-mute)">2025.08.24 · 첫 진단</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="delta same">— 첫 진단</div>
+          <div class="chevron">›</div>
         </div>
       </div>
 
-    </div><!-- /timeline -->
+    </div>
 
     <div class="tl-end">Beginning</div>
     <div class="scroll-pad"></div>
@@ -1020,14 +998,14 @@ html,body{
 
   <div class="scroll">
     <div class="me-detail-hero">
-      <div class="hero-picto" style="background:rgba(232,64,42,.12)">
+      <div class="hero-picto" style="background:rgba(83,74,183,.12)">
         <svg width="36" height="36" viewBox="0 0 28 28" fill="none">
-          <rect x="3" y="16" width="22" height="9" rx="2.5" fill="#E8402A" opacity=".3"/>
-          <rect x="3" y="16" width="22" height="9" rx="2.5" stroke="#F0A090" stroke-width="1.6"/>
-          <rect x="6" y="9" width="16" height="8" rx="2" fill="#E8402A" opacity=".45"/>
-          <rect x="6" y="9" width="16" height="8" rx="2" stroke="#F0A090" stroke-width="1.6"/>
-          <rect x="9" y="3" width="10" height="7" rx="1.5" fill="#E8402A" opacity=".65"/>
-          <rect x="9" y="3" width="10" height="7" rx="1.5" stroke="#F0A090" stroke-width="1.6"/>
+          <rect x="3" y="16" width="22" height="9" rx="2.5" fill="#534AB7" opacity=".3"/>
+          <rect x="3" y="16" width="22" height="9" rx="2.5" stroke="#AFA9EC" stroke-width="1.6"/>
+          <rect x="6" y="9" width="16" height="8" rx="2" fill="#534AB7" opacity=".45"/>
+          <rect x="6" y="9" width="16" height="8" rx="2" stroke="#AFA9EC" stroke-width="1.6"/>
+          <rect x="9" y="3" width="10" height="7" rx="1.5" fill="#534AB7" opacity=".65"/>
+          <rect x="9" y="3" width="10" height="7" rx="1.5" stroke="#AFA9EC" stroke-width="1.6"/>
         </svg>
       </div>
       <div class="hero-eyebrow">Persona</div>
@@ -1046,13 +1024,13 @@ html,body{
           <svg viewBox="0 0 100 100">
             <polygon points="50,10 84,30 84,70 50,90 16,70 16,30" fill="none" stroke="#DDE1EA" stroke-width=".8"/>
             <polygon points="50,30 68,40 68,60 50,70 32,60 32,40" fill="none" stroke="#DDE1EA" stroke-width=".5"/>
-            <polygon points="50,18 78,34 75,67 50,82 26,65 24,38" fill="rgba(185,70,26,.16)" stroke="#E8402A" stroke-width="1.5" stroke-linejoin="round"/>
-            <circle cx="50" cy="18" r="2" fill="#E8402A"/>
-            <circle cx="78" cy="34" r="2" fill="#E8402A"/>
-            <circle cx="75" cy="67" r="2" fill="#E8402A"/>
-            <circle cx="50" cy="82" r="2" fill="#E8402A"/>
-            <circle cx="26" cy="65" r="2" fill="#E8402A"/>
-            <circle cx="24" cy="38" r="2" fill="#E8402A"/>
+            <polygon points="50,18 78,34 75,67 50,82 26,65 24,38" fill="rgba(83,74,183,.16)" stroke="#534AB7" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="50" cy="18" r="2" fill="#534AB7"/>
+            <circle cx="78" cy="34" r="2" fill="#534AB7"/>
+            <circle cx="75" cy="67" r="2" fill="#534AB7"/>
+            <circle cx="50" cy="82" r="2" fill="#534AB7"/>
+            <circle cx="26" cy="65" r="2" fill="#534AB7"/>
+            <circle cx="24" cy="38" r="2" fill="#534AB7"/>
           </svg>
         </div>
         <div class="radar-axes">
@@ -1097,15 +1075,23 @@ html,body{
 <div class="screen off-right" id="screen-us">
   <div class="header" id="us-header">
     <div class="app-name">
-      <div class="app-title">나와 너의 방구석 <span>MBTI 궁합</span></div>
+      <div style="font-size:14px;color:var(--ink-mute);margin-bottom:2px">방구석 MBTI</div>
+      <div class="app-title"><span>궁합</span> 분석</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div onclick="openSheet()" style="width:38px;height:38px;border-radius:50%;background:var(--accent-s);display:grid;place-items:center;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#534AB7" stroke-width="2" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#534AB7" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div onclick="openAddPartner()" style="width:38px;height:38px;border-radius:50%;background:var(--accent-s);display:grid;place-items:center;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" stroke="#534AB7" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#534AB7" stroke-width="2"/><path d="M19 8v6M22 11h-6" stroke="#534AB7" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
     </div>
   </div>
 
   <div class="scroll" id="us-scroll">
 
-    <!-- 내 현재 카드 -->
-    <div class="my-card-wrap us-anim">
-      <div class="my-card-label">나의 현재 유형</div>
+    <!-- 내 현재 카드 — 라벤더 틴트 -->
+    <div style="padding:16px 20px 0" class="us-anim">
       <div class="my-card">
         <div class="my-card-top">
           <div>
@@ -1125,49 +1111,23 @@ html,body{
       </div>
     </div>
 
-    <!-- 추가 버튼 -->
-    <div class="add-sec us-anim">
-      <div class="sec-row">
-        <div class="sec-h">궁합 보기</div>
-        <div class="sec-sub">상대를 초대하거나 추가하세요</div>
-      </div>
-      <div class="add-btns">
-        <button class="add-btn invite" onclick="openSheet()">
-          <div class="add-btn-icon">🔗</div>
-          <div>
-            <div class="add-btn-title">링크로 초대</div>
-            <div class="add-btn-desc">상대방이 직접 진단 후 자동 연결</div>
-          </div>
-        </button>
-        <button class="add-btn direct" onclick="openAddPartner()">
-          <div class="add-btn-icon">👤</div>
-          <div>
-            <div class="add-btn-title">직접 추가</div>
-            <div class="add-btn-desc">이미 가입한 상대 검색</div>
-          </div>
-        </button>
-      </div>
+    <!-- 이전 궁합 헤더 -->
+    <div style="padding:20px 20px 12px;display:flex;align-items:center;justify-content:space-between" class="us-anim">
+      <span style="font-size:16px;font-weight:700;color:var(--ink)">이전 궁합</span>
+      <span style="font-size:12px;font-weight:600;color:var(--accent)">모두 보기</span>
     </div>
-
-    <!-- 이전 궁합 이력 -->
-    <div class="hist-sec">
-      <div class="sec-row us-anim">
-        <div class="sec-h">이전 궁합</div>
-      </div>
-      <div style="font-size:12px;color:var(--ink-mute);margin-bottom:12px;padding-left:1px">
-        카드를 삭제하고 싶다면 왼쪽으로 밀어보세요
-      </div>
-      <div class="history-grid" id="history-grid">
+    <div style="padding:0 20px 6px;font-size:12px;color:var(--ink-mute)">카드를 왼쪽으로 밀면 삭제할 수 있어요</div>
+      <div class="history-grid" id="history-grid" style="padding:0 20px">
 
         <div class="hf-wrap us-anim" id="hfw-0">
           <div class="hf-delete-bg" onclick="deleteHistoryFile(0)" style="cursor:pointer">
             <div class="hf-trash">🗑️<span class="hf-trash-label">삭제</span></div>
           </div>
           <div class="history-file" id="hf-0">
-            <div class="file-avatar fa-couple">👫<div class="file-badge">💍</div></div>
+            <div style="width:42px;height:42px;background:#EEEDFE;border-radius:12px;display:grid;place-items:center;font-size:20px;flex-shrink:0">💍</div>
             <div class="file-body">
-              <div class="file-names">나 <span>&</span> 서연</div>
-              <div class="file-meta"><span>부부</span><div class="fmeta-dot"></div><span>2026. 05. 12</span></div>
+              <div class="file-names">나 <span style="font-weight:400;color:var(--ink-soft)">&</span> 서연 <span style="font-weight:400;font-size:13px;color:var(--ink-mute)">· 부부</span></div>
+              <div class="file-meta">2026. 05. 12</div>
             </div>
             <div class="file-score"><div class="score-num mid">74</div><div class="score-label">점</div></div>
           </div>
@@ -1178,10 +1138,10 @@ html,body{
             <div class="hf-trash">🗑️<span class="hf-trash-label">삭제</span></div>
           </div>
           <div class="history-file" id="hf-1">
-            <div class="file-avatar fa-friend">🤝<div class="file-badge">👯</div></div>
+            <div style="width:42px;height:42px;background:#E1F5EE;border-radius:12px;display:grid;place-items:center;font-size:20px;flex-shrink:0">🤝</div>
             <div class="file-body">
-              <div class="file-names">나 <span>&</span> 민준</div>
-              <div class="file-meta"><span>친구</span><div class="fmeta-dot"></div><span>2026. 03. 28</span></div>
+              <div class="file-names">나 <span style="font-weight:400;color:var(--ink-soft)">&</span> 민준 <span style="font-weight:400;font-size:13px;color:var(--ink-mute)">· 친구</span></div>
+              <div class="file-meta">2026. 03. 28</div>
             </div>
             <div class="file-score"><div class="score-num high">88</div><div class="score-label">점</div></div>
           </div>
@@ -1192,10 +1152,10 @@ html,body{
             <div class="hf-trash">🗑️<span class="hf-trash-label">삭제</span></div>
           </div>
           <div class="history-file" id="hf-2">
-            <div class="file-avatar fa-cowork">💼<div class="file-badge">🏢</div></div>
+            <div style="width:42px;height:42px;background:#FAEEDA;border-radius:12px;display:grid;place-items:center;font-size:20px;flex-shrink:0">💼</div>
             <div class="file-body">
-              <div class="file-names">나 <span>&</span> 지훈</div>
-              <div class="file-meta"><span>회사 동료</span><div class="fmeta-dot"></div><span>2026. 02. 14</span></div>
+              <div class="file-names">나 <span style="font-weight:400;color:var(--ink-soft)">&</span> 지훈 <span style="font-weight:400;font-size:13px;color:var(--ink-mute)">· 동료</span></div>
+              <div class="file-meta">2026. 02. 14</div>
             </div>
             <div class="file-score"><div class="score-num low">52</div><div class="score-label">점</div></div>
           </div>
@@ -1206,17 +1166,16 @@ html,body{
             <div class="hf-trash">🗑️<span class="hf-trash-label">삭제</span></div>
           </div>
           <div class="history-file" id="hf-3">
-            <div class="file-avatar fa-friend">🤝<div class="file-badge">👯</div></div>
+            <div style="width:42px;height:42px;background:#E1F5EE;border-radius:12px;display:grid;place-items:center;font-size:20px;flex-shrink:0">🤝</div>
             <div class="file-body">
-              <div class="file-names">나 <span>&</span> 하은</div>
-              <div class="file-meta"><span>친구</span><div class="fmeta-dot"></div><span>2025. 11. 03</span></div>
+              <div class="file-names">나 <span style="font-weight:400;color:var(--ink-soft)">&</span> 하은 <span style="font-weight:400;font-size:13px;color:var(--ink-mute)">· 친구</span></div>
+              <div class="file-meta">2025. 11. 03</div>
             </div>
             <div class="file-score"><div class="score-num mid">68</div><div class="score-label">점</div></div>
           </div>
         </div>
 
       </div>
-    </div>
 
     <!-- 확인 팝업 -->
     <div class="confirm-overlay" id="confirm-overlay">
@@ -1689,16 +1648,16 @@ html,body{
     <!-- ① 내 MBTI 유형 카드 -->
     <div style="padding:20px 20px 0">
       <div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:10px">최근 진단 · 2026. 05. 12</div>
-      <div style="background:var(--ink);border-radius:20px;padding:20px 22px;position:relative;overflow:hidden">
-        <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(232,64,42,.4),transparent 70%);pointer-events:none"></div>
-        <div style="width:48px;height:48px;border-radius:14px;background:rgba(232,64,42,.14);display:grid;place-items:center;margin-bottom:12px">
+      <div style="background:#534AB7;border-radius:20px;padding:20px 22px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(83,74,183,.4),transparent 70%);pointer-events:none"></div>
+        <div style="width:48px;height:48px;border-radius:14px;background:rgba(83,74,183,.14);display:grid;place-items:center;margin-bottom:12px">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <rect x="3" y="16" width="22" height="9" rx="2.5" fill="#E8402A" opacity=".3"/>
-            <rect x="3" y="16" width="22" height="9" rx="2.5" stroke="#F0A090" stroke-width="1.6"/>
-            <rect x="6" y="9" width="16" height="8" rx="2" fill="#E8402A" opacity=".45"/>
-            <rect x="6" y="9" width="16" height="8" rx="2" stroke="#F0A090" stroke-width="1.6"/>
-            <rect x="9" y="3" width="10" height="7" rx="1.5" fill="#E8402A" opacity=".65"/>
-            <rect x="9" y="3" width="10" height="7" rx="1.5" stroke="#F0A090" stroke-width="1.6"/>
+            <rect x="3" y="16" width="22" height="9" rx="2.5" fill="#534AB7" opacity=".3"/>
+            <rect x="3" y="16" width="22" height="9" rx="2.5" stroke="#AFA9EC" stroke-width="1.6"/>
+            <rect x="6" y="9" width="16" height="8" rx="2" fill="#534AB7" opacity=".45"/>
+            <rect x="6" y="9" width="16" height="8" rx="2" stroke="#AFA9EC" stroke-width="1.6"/>
+            <rect x="9" y="3" width="10" height="7" rx="1.5" fill="#534AB7" opacity=".65"/>
+            <rect x="9" y="3" width="10" height="7" rx="1.5" stroke="#AFA9EC" stroke-width="1.6"/>
           </svg>
         </div>
         <div style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(248,249,251,.4);margin-bottom:6px">My Habit Type</div>
@@ -1731,17 +1690,17 @@ html,body{
             <div style="flex:1;height:5px;background:var(--bg-deep);border-radius:100px;overflow:hidden"><div style="width:80%;height:100%;background:var(--ink);border-radius:100px"></div></div>
             <span style="font-size:14px;font-weight:800;color:var(--ink);width:28px;text-align:right">80</span>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;margin:4px -10px;border-radius:10px;background:rgba(232,64,42,.07);border:1px solid rgba(232,64,42,.2)">
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;margin:4px -10px;border-radius:10px;background:rgba(83,74,183,.07);border:1px solid rgba(83,74,183,.2)">
             <span style="font-size:12px;font-weight:700;color:var(--accent);width:56px;flex-shrink:0">위생청결</span>
-            <div style="flex:1;height:5px;background:rgba(232,64,42,.12);border-radius:100px;overflow:hidden"><div style="width:65%;height:100%;background:var(--accent);border-radius:100px"></div></div>
+            <div style="flex:1;height:5px;background:rgba(83,74,183,.12);border-radius:100px;overflow:hidden"><div style="width:65%;height:100%;background:var(--accent);border-radius:100px"></div></div>
             <span style="font-size:14px;font-weight:800;color:var(--accent);width:28px;text-align:right">65</span>
-            <span style="font-size:9px;font-weight:800;color:var(--accent);letter-spacing:.06em;flex-shrink:0">LOW</span>
+            <span style="font-size:9px;font-weight:800;color:#534AB7;letter-spacing:.06em;flex-shrink:0">LOW</span>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;margin:4px -10px;border-radius:10px;background:rgba(232,64,42,.07);border:1px solid rgba(232,64,42,.2)">
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;margin:4px -10px;border-radius:10px;background:rgba(83,74,183,.07);border:1px solid rgba(83,74,183,.2)">
             <span style="font-size:12px;font-weight:700;color:var(--accent);width:56px;flex-shrink:0">소비성향</span>
-            <div style="flex:1;height:5px;background:rgba(232,64,42,.12);border-radius:100px;overflow:hidden"><div style="width:70%;height:100%;background:var(--accent);border-radius:100px"></div></div>
+            <div style="flex:1;height:5px;background:rgba(83,74,183,.12);border-radius:100px;overflow:hidden"><div style="width:70%;height:100%;background:var(--accent);border-radius:100px"></div></div>
             <span style="font-size:14px;font-weight:800;color:var(--accent);width:28px;text-align:right">70</span>
-            <span style="font-size:9px;font-weight:800;color:var(--accent);letter-spacing:.06em;flex-shrink:0">LOW</span>
+            <span style="font-size:9px;font-weight:800;color:#534AB7;letter-spacing:.06em;flex-shrink:0">LOW</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)">
             <span style="font-size:12px;color:var(--ink-soft);width:56px;flex-shrink:0">계획성</span>
@@ -1753,18 +1712,18 @@ html,body{
             <div style="flex:1;height:5px;background:var(--bg-deep);border-radius:100px;overflow:hidden"><div style="width:75%;height:100%;background:var(--ink);border-radius:100px"></div></div>
             <span style="font-size:14px;font-weight:800;color:var(--ink);width:28px;text-align:right">75</span>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;margin:4px -10px 0;border-radius:10px;background:rgba(232,64,42,.07);border:1px solid rgba(232,64,42,.2)">
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;margin:4px -10px 0;border-radius:10px;background:rgba(83,74,183,.07);border:1px solid rgba(83,74,183,.2)">
             <span style="font-size:12px;font-weight:700;color:var(--accent);width:56px;flex-shrink:0">디지털</span>
-            <div style="flex:1;height:5px;background:rgba(232,64,42,.12);border-radius:100px;overflow:hidden"><div style="width:60%;height:100%;background:var(--accent);border-radius:100px"></div></div>
+            <div style="flex:1;height:5px;background:rgba(83,74,183,.12);border-radius:100px;overflow:hidden"><div style="width:60%;height:100%;background:var(--accent);border-radius:100px"></div></div>
             <span style="font-size:14px;font-weight:800;color:var(--accent);width:28px;text-align:right">60</span>
-            <span style="font-size:9px;font-weight:800;color:var(--accent);letter-spacing:.06em;flex-shrink:0">LOW</span>
+            <span style="font-size:9px;font-weight:800;color:#534AB7;letter-spacing:.06em;flex-shrink:0">LOW</span>
           </div>
         </div>
         <!-- 낮은 축 칩 -->
         <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
-          <div style="background:rgba(232,64,42,.1);border:1px solid rgba(232,64,42,.22);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--accent)">↓ 디지털 60</div>
-          <div style="background:rgba(232,64,42,.07);border:1px solid rgba(232,64,42,.16);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--accent)">↓ 위생청결 65</div>
-          <div style="background:rgba(232,64,42,.05);border:1px solid rgba(232,64,42,.12);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--accent)">↓ 소비성향 70</div>
+          <div style="background:rgba(83,74,183,.1);border:1px solid rgba(83,74,183,.22);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--accent)">↓ 디지털 60</div>
+          <div style="background:rgba(83,74,183,.07);border:1px solid rgba(83,74,183,.16);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--accent)">↓ 위생청결 65</div>
+          <div style="background:rgba(83,74,183,.05);border:1px solid rgba(83,74,183,.12);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--accent)">↓ 소비성향 70</div>
         </div>
       </div>
 
@@ -1780,7 +1739,7 @@ html,body{
             <div style="font-size:13.5px;color:var(--ink-soft);line-height:1.6">바탕화면 정리, 알림 관리 같은 <strong style="color:var(--ink)">하루 5분 디지털 루틴</strong>이 계획성(90)과 시너지를 만들어요.</div>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start">
-            <div style="width:30px;height:30px;border-radius:8px;background:rgba(232,64,42,.08);display:grid;place-items:center;flex-shrink:0;font-size:15px">📅</div>
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(83,74,183,.08);display:grid;place-items:center;flex-shrink:0;font-size:15px">📅</div>
             <div style="font-size:13.5px;color:var(--ink-soft);line-height:1.6">소비성향 개선엔 <strong style="color:var(--ink)">'72시간 룰'</strong>을 도입해보세요. 사고 싶은 걸 3일 기다린 후 결정하는 방법이에요.</div>
           </div>
         </div>
@@ -1794,7 +1753,7 @@ html,body{
 
         <div style="background:#fff;border-radius:16px;padding:15px 16px;box-shadow:var(--card-shadow-sm)">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-            <div style="width:42px;height:42px;border-radius:12px;background:rgba(232,64,42,.1);display:grid;place-items:center;font-size:20px;flex-shrink:0">🖥️</div>
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(83,74,183,.1);display:grid;place-items:center;font-size:20px;flex-shrink:0">🖥️</div>
             <div style="flex:1">
               <div style="font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:3px">디지털 · 7일</div>
               <div style="font-size:14px;font-weight:800;letter-spacing:-.02em;color:var(--ink)">바탕화면 파일 0개 만들기</div>
@@ -1803,7 +1762,7 @@ html,body{
           <div style="font-size:12.5px;color:var(--ink-mute);line-height:1.5;margin-bottom:12px">모든 파일을 폴더로 분류하고 바탕화면을 완전히 비워보세요.</div>
           <div style="height:4px;background:var(--bg-deep);border-radius:100px;overflow:hidden;margin-bottom:8px"><div style="width:0%;height:100%;background:var(--accent);border-radius:100px"></div></div>
           <div style="display:flex">
-            <button style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;letter-spacing:-.01em;box-shadow:0 3px 10px -3px rgba(232,64,42,.35)">시작하기</button>
+            <button style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;letter-spacing:-.01em;box-shadow:0 3px 10px -3px rgba(83,74,183,.35)">시작하기</button>
           </div>
         </div>
 
@@ -1818,7 +1777,7 @@ html,body{
           <div style="font-size:12.5px;color:var(--ink-mute);line-height:1.5;margin-bottom:12px">메신저·앱 알림을 점검하고 꼭 필요한 것만 남겨보세요.</div>
           <div style="height:4px;background:var(--bg-deep);border-radius:100px;overflow:hidden;margin-bottom:8px"><div style="width:0%;height:100%;background:var(--green);border-radius:100px"></div></div>
           <div style="display:flex">
-            <button style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;letter-spacing:-.01em;box-shadow:0 3px 10px -3px rgba(232,64,42,.35)">시작하기</button>
+            <button style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;letter-spacing:-.01em;box-shadow:0 3px 10px -3px rgba(83,74,183,.35)">시작하기</button>
           </div>
         </div>
 
@@ -1833,7 +1792,7 @@ html,body{
           <div style="font-size:12.5px;color:var(--ink-mute);line-height:1.5;margin-bottom:12px">유통기한 지난 것, 6개월 이상 안 쓴 것을 찾아서 버려보세요.</div>
           <div style="height:4px;background:var(--bg-deep);border-radius:100px;overflow:hidden;margin-bottom:8px"><div style="width:0%;height:100%;background:var(--blue);border-radius:100px"></div></div>
           <div style="display:flex">
-            <button style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;letter-spacing:-.01em;box-shadow:0 3px 10px -3px rgba(232,64,42,.35)">시작하기</button>
+            <button style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;letter-spacing:-.01em;box-shadow:0 3px 10px -3px rgba(83,74,183,.35)">시작하기</button>
           </div>
         </div>
 
@@ -1877,8 +1836,8 @@ html,body{
 
     <!-- 프로필 카드 -->
     <div style="padding:20px 20px 0">
-      <div style="background:var(--ink);border-radius:20px;padding:20px 22px;position:relative;overflow:hidden">
-        <div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:radial-gradient(circle,rgba(232,64,42,.35),transparent 70%);pointer-events:none"></div>
+      <div style="background:#534AB7;border-radius:20px;padding:20px 22px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:radial-gradient(circle,rgba(83,74,183,.35),transparent 70%);pointer-events:none"></div>
         <div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(248,249,251,.4);margin-bottom:12px">My Profile</div>
         <div style="display:flex;align-items:center;gap:14px">
           <div style="width:48px;height:48px;border-radius:14px;background:rgba(248,249,251,.12);display:grid;place-items:center;font-size:22px;flex-shrink:0">🙂</div>
@@ -2983,12 +2942,12 @@ function switchCTab(tab) {
   const panC = document.getElementById('cpanel-consult');
   if (!btnA || !btnC || !panA || !panC) return;
 
-  btnA.style.background = isAnalysis ? 'var(--bg-card)' : 'transparent';
-  btnA.style.color      = isAnalysis ? 'var(--ink)'     : 'var(--ink-mute)';
+  btnA.style.background = isAnalysis ? '#EEEDFE' : 'transparent';
+  btnA.style.color      = isAnalysis ? '#534AB7'         : 'var(--ink-mute)';
   btnA.style.boxShadow  = isAnalysis ? '0 1px 3px rgba(30,33,40,.1)' : 'none';
 
-  btnC.style.background = !isAnalysis ? 'var(--bg-card)' : 'transparent';
-  btnC.style.color      = !isAnalysis ? 'var(--ink)'     : 'var(--ink-mute)';
+  btnC.style.background = !isAnalysis ? '#EEEDFE'         : 'transparent';
+  btnC.style.color      = !isAnalysis ? '#534AB7'         : 'var(--ink-mute)';
   btnC.style.boxShadow  = !isAnalysis ? '0 1px 3px rgba(30,33,40,.1)' : 'none';
 
   panA.style.display = isAnalysis  ? 'block' : 'none';
